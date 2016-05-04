@@ -351,7 +351,7 @@ def wait_for_elb(asg_connection, module, group_name):
     as_group = asg_connection.get_all_groups(names=[group_name])[0]
 
     if as_group.load_balancers and as_group.health_check_type == 'ELB':
-        log.debug("Waiting for ELB to consider intances healthy.")
+        log.debug("Waiting for ELB to consider instances healthy.")
         try:
             elb_connection = connect_to_aws(boto.ec2.elb, region, **aws_connect_params)
         except boto.exception.NoAuthHandlerFound, e:
@@ -422,7 +422,7 @@ def create_autoscaling_group(connection, module):
                  connection=connection,
                  tags=asg_tags,
                  health_check_period=health_check_period,
-                 health_check_type=health_check_type,
+                 health_check_type=health_check_type or 'EC2',
                  default_cooldown=default_cooldown,
                  termination_policies=termination_policies)
 
@@ -790,7 +790,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent']),
             tags=dict(type='list', default=[]),
             health_check_period=dict(type='int', default=300),
-            health_check_type=dict(default='EC2', choices=['EC2', 'ELB']),
+            health_check_type=dict(choices=['EC2', 'ELB']),
             default_cooldown=dict(type='int', default=300),
             wait_for_instances=dict(type='bool', default=True),
             termination_policies=dict(type='list', default='Default')
